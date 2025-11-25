@@ -16,14 +16,14 @@ class DPCanvasHandler {
         this.config = {
             photo: {
                 // Photo circle is on the RIGHT side, upper area
-                centerX: this.width * 0.69,        // 69% from left (RIGHT side)
+                centerX: this.width * 0.63,        // 69% from left (RIGHT side)
                 centerY: this.height * 0.285,      // 28.5% from top (UPPER area)
-                radius: this.width * 0.175         // Circle size to fit the gradient ring
+                radius: this.width * 0.248         // Circle size to fit the gradient ring
             },
             name: {
                 // Name box is below the circle, same horizontal position
                 centerX: this.width * 0.69,        // Same X as photo (RIGHT side)
-                centerY: this.height * 0.525,      // 52.5% from top (WHITE BOX area)
+                centerY: this.height * 0.745,      // 52.5% from top (WHITE BOX area)
                 maxWidth: this.width * 0.32,       // Width of white name box
                 fontSize: { min: 32, max: 52 }     // Font sizes
             }
@@ -311,3 +311,4 @@ if (typeof window !== 'undefined') {
     window.DPCanvasHandler = DPCanvasHandler;
     window.initializeCanvas = initializeCanvas;
 }
+
