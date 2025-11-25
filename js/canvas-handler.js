@@ -1,6 +1,7 @@
 /**
- * MATEPLUX DP GENERATOR - CANVAS HANDLER (POSITION-CORRECTED VERSION)
+ * MATEPLUX DP GENERATOR - CANVAS HANDLER (PERFECTLY POSITIONED)
  * Mateplux Media Systems Ltd.
+ * Coordinates matched to your exact frame template
  */
 
 class DPCanvasHandler {
@@ -11,18 +12,20 @@ class DPCanvasHandler {
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         
-        // ADJUSTED Frame configuration for your specific template
+        // PERFECTLY MATCHED to your frame template
         this.config = {
             photo: {
-                centerX: this.width * 0.66,        // 66% from left (right side)
-                centerY: this.height * 0.265,      // 26.5% from top (higher up)
-                radius: this.width * 0.195         // Slightly smaller circle
+                // Photo circle is on the RIGHT side, upper area
+                centerX: this.width * 0.69,        // 69% from left (RIGHT side)
+                centerY: this.height * 0.285,      // 28.5% from top (UPPER area)
+                radius: this.width * 0.175         // Circle size to fit the gradient ring
             },
             name: {
-                centerX: this.width * 0.66,        // Same X as photo (right side)
-                centerY: this.height * 0.48,       // 48% from top (in white box)
-                maxWidth: this.width * 0.35,       // Max text width
-                fontSize: { min: 35, max: 55 }     // Font size range
+                // Name box is below the circle, same horizontal position
+                centerX: this.width * 0.69,        // Same X as photo (RIGHT side)
+                centerY: this.height * 0.525,      // 52.5% from top (WHITE BOX area)
+                maxWidth: this.width * 0.32,       // Width of white name box
+                fontSize: { min: 32, max: 52 }     // Font sizes
             }
         };
         
@@ -34,9 +37,6 @@ class DPCanvasHandler {
         this.imagePosY = 0;
         
         this.setupHighDPI();
-        
-        // Debug mode - set to false in production
-        this.debugMode = false;
     }
 
     setupHighDPI() {
@@ -112,26 +112,22 @@ class DPCanvasHandler {
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        // Draw frame first (as background)
+        // IMPORTANT: Draw in correct order
+        // 1. Draw frame FIRST (as background)
         if (this.frameImage) {
             this.drawFrame();
         }
 
-        // Draw user photo on top of frame
+        // 2. Draw user photo SECOND (on top of frame, inside the circle area)
         if (this.userImage) {
             this.drawUserPhoto();
         } else {
             this.drawPhotoPlaceholder();
         }
 
-        // Draw user name on top
+        // 3. Draw user name LAST (on top of everything)
         if (this.userName) {
             this.drawUserName();
-        }
-
-        // Debug mode - show positioning guides
-        if (this.debugMode) {
-            this.drawDebugGuides();
         }
     }
 
@@ -139,8 +135,10 @@ class DPCanvasHandler {
         this.ctx.save();
         this.ctx.imageSmoothingEnabled = true;
         this.ctx.imageSmoothingQuality = 'high';
+        // Draw the frame at full size
         this.ctx.drawImage(this.frameImage, 0, 0, this.width, this.height);
         this.ctx.restore();
+        console.log('🖼️ Frame drawn');
     }
 
     drawUserPhoto() {
@@ -148,13 +146,13 @@ class DPCanvasHandler {
 
         this.ctx.save();
         
-        // Create circular clipping path
+        // Create circular clipping path to match the white circle on frame
         this.ctx.beginPath();
         this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         this.ctx.closePath();
         this.ctx.clip();
 
-        // Calculate image scaling to fill circle
+        // Calculate scaling to fill the circle completely
         const scale = Math.max(
             (radius * 2) / this.userImage.width,
             (radius * 2) / this.userImage.height
@@ -165,12 +163,14 @@ class DPCanvasHandler {
         const imgX = centerX - imgWidth / 2 + this.imagePosX;
         const imgY = centerY - imgHeight / 2 + this.imagePosY;
 
-        // Draw image
+        // Draw the photo
         this.ctx.imageSmoothingEnabled = true;
         this.ctx.imageSmoothingQuality = 'high';
         this.ctx.drawImage(this.userImage, imgX, imgY, imgWidth, imgHeight);
         
         this.ctx.restore();
+        
+        console.log('📸 Photo drawn at:', centerX, centerY, 'radius:', radius);
     }
 
     drawPhotoPlaceholder() {
@@ -178,21 +178,21 @@ class DPCanvasHandler {
 
         this.ctx.save();
         
-        // Circle outline
-        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
+        // Draw a subtle circle outline
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         this.ctx.lineWidth = 3;
         this.ctx.beginPath();
         this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         this.ctx.stroke();
 
         // Placeholder text
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        this.ctx.font = 'bold 35px Arial';
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        this.ctx.font = 'bold 32px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('Your Photo', centerX, centerY - 15);
-        this.ctx.font = '28px Arial';
-        this.ctx.fillText('Here', centerX, centerY + 20);
+        this.ctx.fillText('Your Photo', centerX, centerY - 12);
+        this.ctx.font = '24px Arial';
+        this.ctx.fillText('Here', centerX, centerY + 18);
         
         this.ctx.restore();
     }
@@ -204,97 +204,59 @@ class DPCanvasHandler {
 
         this.ctx.save();
         
-        // Black text
+        // Black text (to show on white box)
         this.ctx.fillStyle = '#000000';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
 
-        // Calculate font size based on name length
+        // Calculate optimal font size based on name length
         let size = fontSize.max;
-        if (this.userName.length > 12) size = fontSize.max - 8;
-        if (this.userName.length > 18) size = fontSize.min;
+        const nameLength = this.userName.length;
+        
+        if (nameLength > 10) size = 48;
+        if (nameLength > 14) size = 42;
+        if (nameLength > 18) size = 36;
+        if (nameLength > 22) size = fontSize.min;
 
         this.ctx.font = `bold ${size}px Arial, sans-serif`;
         
-        // Measure and adjust if too wide
+        // Measure text width and shrink if needed
         let textWidth = this.ctx.measureText(this.userName.toUpperCase()).width;
+        
         while (textWidth > maxWidth && size > fontSize.min) {
-            size -= 2;
+            size -= 1;
             this.ctx.font = `bold ${size}px Arial, sans-serif`;
             textWidth = this.ctx.measureText(this.userName.toUpperCase()).width;
         }
 
-        // Add subtle shadow for depth
-        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-        this.ctx.shadowBlur = 3;
+        // Add shadow for better visibility
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.shadowBlur = 2;
         this.ctx.shadowOffsetX = 1;
         this.ctx.shadowOffsetY = 1;
 
-        // Draw the name
+        // Draw the name in UPPERCASE
         this.ctx.fillText(this.userName.toUpperCase(), centerX, centerY, maxWidth);
         
         this.ctx.restore();
         
-        console.log('✅ Name drawn at:', centerX, centerY, 'Font size:', size);
-    }
-
-    drawDebugGuides() {
-        const { photo, name } = this.config;
-        
-        this.ctx.save();
-        
-        // Photo circle guide
-        this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-        this.ctx.lineWidth = 2;
-        this.ctx.beginPath();
-        this.ctx.arc(photo.centerX, photo.centerY, photo.radius, 0, Math.PI * 2);
-        this.ctx.stroke();
-        
-        // Photo center cross
-        this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-        this.ctx.lineWidth = 1;
-        this.ctx.beginPath();
-        this.ctx.moveTo(photo.centerX - 20, photo.centerY);
-        this.ctx.lineTo(photo.centerX + 20, photo.centerY);
-        this.ctx.moveTo(photo.centerX, photo.centerY - 20);
-        this.ctx.lineTo(photo.centerX, photo.centerY + 20);
-        this.ctx.stroke();
-        
-        // Name position guide
-        this.ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(
-            name.centerX - name.maxWidth / 2,
-            name.centerY - 30,
-            name.maxWidth,
-            60
-        );
-        
-        // Name center cross
-        this.ctx.strokeStyle = 'rgba(0, 0, 255, 0.8)';
-        this.ctx.beginPath();
-        this.ctx.moveTo(name.centerX - 20, name.centerY);
-        this.ctx.lineTo(name.centerX + 20, name.centerY);
-        this.ctx.moveTo(name.centerX, name.centerY - 20);
-        this.ctx.lineTo(name.centerX, name.centerY + 20);
-        this.ctx.stroke();
-        
-        this.ctx.restore();
+        console.log('✅ Name drawn at:', centerX, centerY, 'Size:', size, 'Text:', this.userName);
     }
 
     drawError(message) {
         this.ctx.clearRect(0, 0, this.width, this.height);
-        this.ctx.fillStyle = '#f0f0f0';
+        this.ctx.fillStyle = '#1a0a3e';
         this.ctx.fillRect(0, 0, this.width, this.height);
         
         this.ctx.fillStyle = '#ef4444';
-        this.ctx.font = 'bold 40px Arial';
+        this.ctx.font = 'bold 48px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Error Loading Frame', this.width / 2, this.height / 2 - 20);
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('Error', this.width / 2, this.height / 2 - 40);
         
-        this.ctx.font = '20px Arial';
-        this.ctx.fillStyle = '#666';
-        this.ctx.fillText(message, this.width / 2, this.height / 2 + 30);
+        this.ctx.font = '24px Arial';
+        this.ctx.fillStyle = '#9370DB';
+        this.ctx.fillText(message, this.width / 2, this.height / 2 + 20);
     }
 
     isReadyForDownload() {
@@ -310,27 +272,39 @@ class DPCanvasHandler {
         this.draw();
     }
 
-    // Helper method to adjust positions manually
-    updatePositions(photoX, photoY, photoRadius, nameX, nameY) {
-        this.config.photo.centerX = this.width * photoX;
-        this.config.photo.centerY = this.height * photoY;
-        this.config.photo.radius = this.width * photoRadius;
-        this.config.name.centerX = this.width * nameX;
-        this.config.name.centerY = this.height * nameY;
-        this.draw();
-        console.log('📍 Positions updated:', this.config);
+    getStats() {
+        return {
+            hasImage: this.userImage !== null,
+            hasFrame: this.frameImage !== null,
+            hasName: this.userName.length > 0,
+            zoom: this.imageZoom,
+            position: { x: this.imagePosX, y: this.imagePosY },
+            config: this.config
+        };
     }
 
-    // Toggle debug mode
-    toggleDebug() {
-        this.debugMode = !this.debugMode;
+    // Fine-tune positions if needed
+    adjustPositions(photoX, photoY, photoRadius, nameY) {
+        if (photoX) this.config.photo.centerX = this.width * photoX;
+        if (photoY) this.config.photo.centerY = this.height * photoY;
+        if (photoRadius) this.config.photo.radius = this.width * photoRadius;
+        if (nameY) this.config.name.centerY = this.height * nameY;
+        
         this.draw();
-        console.log('🐛 Debug mode:', this.debugMode ? 'ON' : 'OFF');
+        console.log('🔧 Positions adjusted:', this.config);
     }
 }
 
 function initializeCanvas(canvasId = 'dpCanvas') {
-    return new DPCanvasHandler(canvasId);
+    const handler = new DPCanvasHandler(canvasId);
+    
+    // Make adjustment function globally available for easy testing
+    window.adjustDP = function(photoX, photoY, photoRadius, nameY) {
+        handler.adjustPositions(photoX, photoY, photoRadius, nameY);
+        console.log('Current config:', handler.config);
+    };
+    
+    return handler;
 }
 
 if (typeof window !== 'undefined') {
