@@ -13,21 +13,20 @@ class DPCanvasHandler {
         this.height = this.canvas.height;
         
         // PERFECTLY MATCHED to your frame template
-        this.config = {
-            photo: {
-                // Photo circle is on the RIGHT side, upper area
-                centerX: this.width * 0.63,        // 69% from left (RIGHT side)
-                centerY: this.height * 0.285,      // 28.5% from top (UPPER area)
-                radius: this.width * 0.248         // Circle size to fit the gradient ring
-            },
-            name: {
-                // Name box is below the circle, same horizontal position
-                centerX: this.width * 0.69,        // Same X as photo (RIGHT side)
-                centerY: this.height * 0.745,      // 52.5% from top (WHITE BOX area)
-                maxWidth: this.width * 0.32,       // Width of white name box
-                fontSize: { min: 32, max: 52 }     // Font sizes
-            }
-        };
+this.config = {
+    photo: {
+        centerX: this.width * 0.672,   // Perfect horizontal alignment
+        centerY: this.height * 0.3672, // From tested result 367.2 px
+        radius: this.width * 0.23      // Clean circle crop based on test
+    },
+    name: {
+        centerX: this.width * 0.69,    // Alignment matched to photo
+        centerY: this.height * 0.615,  // Mid-point between 0.58 and 0.63
+        maxWidth: this.width * 0.338,  // Good readable space
+        fontSize: { min: 38, max: 52 }
+    }
+};
+
         
         this.userImage = null;
         this.frameImage = null;
@@ -311,4 +310,5 @@ if (typeof window !== 'undefined') {
     window.DPCanvasHandler = DPCanvasHandler;
     window.initializeCanvas = initializeCanvas;
 }
+
 
