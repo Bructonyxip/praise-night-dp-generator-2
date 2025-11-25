@@ -15,8 +15,8 @@ class DPCanvasHandler {
         // PERFECTLY MATCHED to your frame template
 this.config = {
     photo: {
-        centerX: this.width * 0.674,   // Perfect horizontal alignment
-        centerY: this.height * 0.3696, // From tested result 367.2 px
+        centerX: this.width * 0.679,   // Perfect horizontal alignment
+        centerY: this.height * 0.3720, // From tested result 367.2 px
         radius: this.width * 0.23      // Clean circle crop based on test
     },
     name: {
@@ -310,6 +310,7 @@ if (typeof window !== 'undefined') {
     window.DPCanvasHandler = DPCanvasHandler;
     window.initializeCanvas = initializeCanvas;
 }
+
 
 
 
